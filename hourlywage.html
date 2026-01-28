@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Hazard Map v3 | 業界別・採用競争力シミュレーター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans JP', sans-serif; }
+        .card-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bar-transition { transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 min-h-screen pb-20 transition-colors">
+
+    <div class="sticky top-0 z-50 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+
+                <div class="flex items-center gap-3 w-full lg:w-auto">
+                    <div class="bg-indigo-900 dark:bg-indigo-600 text-white p-2 rounded-lg shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tighter uppercase leading-none">
+                            Salary <span class="text-indigo-600 dark:text-indigo-400">Map</span> v3
+                        </h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 font-bold">業界別・時給競争力シミュレーター</p>
+                    </div>
+                    <button id="darkModeToggle" onclick="toggleDarkMode()" class="ml-2 p-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" title="ダークモード切替">
+                        <svg id="sunIcon" class="hidden dark:block w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <svg id="moonIcon" class="block dark:hidden w-5 h-5 text-slate-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                    </button>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto bg-slate-100 dark:bg-slate-700 p-3 rounded-xl transition-colors">
+
+                    <div class="flex flex-col w-full sm:w-auto">
+                        <label class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase px-1 mb-1">ターゲット業界</label>
+                        <select id="industrySelect" onchange="updateDashboard()" class="p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-base font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <option value="1.30">ホテル・宿泊業 (高水準)</option>
+                            <option value="1.15">レストラン・飲食 (標準)</option>
+                            <option value="1.05">コンビニ・小売 (低水準)</option>
+                            <option value="1.40">派遣・高スキル (激戦)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col w-full sm:w-auto">
+                        <label class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase px-1 mb-1">提案時給 (円)</label>
+                        <div class="relative w-full sm:w-48">
+                            <input type="number" id="globalWageInput" value="1150" step="10"
+                                oninput="updateDashboard()"
+                                class="w-full p-3 pl-4 rounded-lg border-2 border-indigo-200 dark:border-indigo-700 bg-white dark:bg-slate-800 font-black text-2xl text-center text-slate-800 dark:text-slate-100 focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900 shadow-sm transition-colors">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-8 transition-colors">
+            <h3 class="text-base font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">判定基準の解説</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-4 h-4 rounded-full bg-emerald-500 mt-1 shrink-0"></div>
+                    <div>
+                        <p class="text-base font-black text-emerald-700 dark:text-emerald-400">安全 (Safe)</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">市場相場より10%以上高く、求職者に「稼げる」と認識され、十分な応募が見込める状態。</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-4 h-4 rounded-full bg-amber-400 mt-1 shrink-0"></div>
+                    <div>
+                        <p class="text-base font-black text-amber-600 dark:text-amber-400">注意 (Warning)</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">市場相場と同程度。競合他社と条件が並んでおり、立地やブランド力がないと埋もれる状態。</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-4 h-4 rounded-full bg-rose-500 mt-1 shrink-0"></div>
+                    <div>
+                        <p class="text-base font-black text-rose-600 dark:text-rose-400">危険 (Danger)</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">市場相場を下回っている。最低賃金以上だが、他社より条件が悪いため応募がほぼ来ない状態。</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-4 h-4 rounded-full bg-slate-800 dark:bg-slate-500 mt-1 shrink-0"></div>
+                    <div>
+                        <p class="text-base font-black text-slate-800 dark:text-slate-300">違法水準</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">最低賃金を下回っている状態。法律違反となり、求人媒体への掲載も不可。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboardContainer" class="space-y-12"></div>
+
+    </main>
+
+    <script>
+        /*
+         * ============================================================
+         * 最低賃金データ取得ロードマップ
+         * ============================================================
+         *
+         * 【現状】
+         * - 現在のデータは2024年度の最低賃金をハードコーディング
+         * - 2025年度は全都道府県で1,000円超え（全国加重平均1,121円）
+         *
+         * 【オープンデータソース】
+         *
+         * 1. e-Stat API（政府統計の総合窓口）★推奨
+         *    URL: https://www.e-stat.go.jp/api/
+         *    - 無料のユーザー登録でAPIキー取得可能
+         *    - JSON/XML/CSV形式でデータ取得可能
+         *    - 統計表ID検索で「最低賃金」を検索し、該当データを特定
+         *    - 例: https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData?appId=YOUR_KEY&statsDataId=XXXX
+         *
+         * 2. 厚生労働省 最低賃金特設サイト
+         *    URL: https://saiteichingin.mhlw.go.jp/
+         *    - 都道府県別の最新データを掲載
+         *    - APIは提供されていないため、スクレイピングが必要
+         *    - 「地域別最低賃金全国一覧」ページからデータ取得可能
+         *
+         * 3. 労働政策研究・研修機構（JILPT）
+         *    URL: https://www.jil.go.jp/kokunai/statistics/timeseries/html/g0403.html
+         *    - 時系列データをExcel形式で提供
+         *    - 過去データの取得に適している
+         *
+         * 【実装ステップ】
+         *
+         * Phase 1: 手動更新の効率化
+         *   - 現在のハードコーディングを外部JSONファイルに分離
+         *   - データ更新日時を表示する機能を追加
+         *
+         * Phase 2: 自動取得の実装（推奨: e-Stat API）
+         *   - e-Statユーザー登録・APIキー取得
+         *   - 最低賃金の統計表IDを特定
+         *   - fetch()でJSONデータを取得するコードを実装
+         *   - LocalStorageにキャッシュし、定期的に更新
+         *
+         * Phase 3: バックエンド連携（オプション）
+         *   - CORSの問題を回避するため、プロキシサーバーを経由
+         *   - または、GitHub Actionsで定期的にデータを更新しJSONファイルを生成
+         *
+         * 【注意事項】
+         * - 最低賃金は毎年10月頃に改定される
+         * - 発効日は都道府県により異なる（10月1日〜1月初旬）
+         * - e-Stat APIの利用規約を確認すること
+         *
+         * ============================================================
+         */
+
+        // 47都道府県データ（2024年度最低賃金ベース - 要更新）
+        // TODO: 2025年度データへの更新が必要
+        const regions = [
+            {
+                name: "北海道・東北",
+                prefs: [
+                    { name: "北海道", min: 1010 }, { name: "青森県", min: 953 },
+                    { name: "岩手県", min: 952 }, { name: "宮城県", min: 973 },
+                    { name: "秋田県", min: 951 }, { name: "山形県", min: 955 },
+                    { name: "福島県", min: 955 }
+                ]
+            },
+            {
+                name: "関東",
+                prefs: [
+                    { name: "茨城県", min: 1005 }, { name: "栃木県", min: 1004 },
+                    { name: "群馬県", min: 985 }, { name: "埼玉県", min: 1078 },
+                    { name: "千葉県", min: 1076 }, { name: "東京都", min: 1163 },
+                    { name: "神奈川県", min: 1162 }
+                ]
+            },
+            {
+                name: "中部・北陸",
+                prefs: [
+                    { name: "新潟県", min: 985 }, { name: "富山県", min: 998 },
+                    { name: "石川県", min: 984 }, { name: "福井県", min: 984 },
+                    { name: "山梨県", min: 988 }, { name: "長野県", min: 998 },
+                    { name: "岐阜県", min: 1001 }, { name: "静岡県", min: 1034 },
+                    { name: "愛知県", min: 1077 }
+                ]
+            },
+            {
+                name: "近畿",
+                prefs: [
+                    { name: "三重県", min: 1023 }, { name: "滋賀県", min: 1017 },
+                    { name: "京都府", min: 1058 }, { name: "大阪府", min: 1114 },
+                    { name: "兵庫県", min: 1052 }, { name: "奈良県", min: 986 },
+                    { name: "和歌山県", min: 980 }
+                ]
+            },
+            {
+                name: "中国・四国",
+                prefs: [
+                    { name: "鳥取県", min: 950 }, { name: "島根県", min: 963 },
+                    { name: "岡山県", min: 982 }, { name: "広島県", min: 1020 },
+                    { name: "山口県", min: 979 }, { name: "徳島県", min: 980 },
+                    { name: "香川県", min: 970 }, { name: "愛媛県", min: 956 },
+                    { name: "高知県", min: 952 }
+                ]
+            },
+            {
+                name: "九州・沖縄",
+                prefs: [
+                    { name: "福岡県", min: 992 }, { name: "佐賀県", min: 956 },
+                    { name: "長崎県", min: 953 }, { name: "熊本県", min: 952 },
+                    { name: "大分県", min: 954 }, { name: "宮崎県", min: 952 },
+                    { name: "鹿児島県", min: 953 }, { name: "沖縄県", min: 952 }
+                ]
+            }
+        ];
+
+        // 初期描画
+        function renderDashboard() {
+            const container = document.getElementById('dashboardContainer');
+            container.innerHTML = '';
+
+            regions.forEach((region, rIndex) => {
+                // セクション作成
+                const section = document.createElement('section');
+                
+                // エリアタイトル
+                const title = document.createElement('h2');
+                title.className = "text-2xl font-black text-slate-700 dark:text-slate-200 mb-5 px-3 border-l-4 border-slate-300 dark:border-slate-600 flex items-center";
+                title.innerHTML = `${region.name}`;
+                section.appendChild(title);
+
+                // グリッド作成
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5";
+
+                region.prefs.forEach((pref, pIndex) => {
+                    const id = `pref-${rIndex}-${pIndex}`;
+                    const card = document.createElement('div');
+                    card.id = `card-${id}`;
+                    // 初期クラス
+                    card.className = "card-transition bg-white dark:bg-slate-800 rounded-xl p-5 border dark:border-slate-700 shadow-sm relative overflow-hidden group";
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4 relative z-10">
+                            <h3 class="font-bold text-xl text-slate-700 dark:text-slate-200">${pref.name}</h3>
+                            <span id="badge-${id}" class="text-sm font-bold px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">--</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-4 relative z-10">
+                            <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-100 dark:border-slate-600">
+                                <span class="block text-sm text-slate-400 font-bold">法的下限</span>
+                                <span class="block text-lg font-bold text-slate-600 dark:text-slate-300">${pref.min}円</span>
+                            </div>
+                            <div class="bg-indigo-50 dark:bg-indigo-900/30 p-3 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                                <span class="block text-sm text-indigo-400 font-bold">市場相場</span>
+                                <span id="avg-${id}" class="block text-lg font-bold text-indigo-700 dark:text-indigo-400">--円</span>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm font-bold text-slate-400">達成率</span>
+                                <span id="diff-${id}" class="text-base font-black text-slate-400">--</span>
+                            </div>
+
+                            <div class="h-3 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div id="bar-${id}" class="bar-transition h-full w-0 bg-slate-300"></div>
+                            </div>
+                        </div>
+
+                        <div id="alert-${id}" class="hidden absolute top-3 right-3 z-20">
+                            <span class="text-white font-black text-xs uppercase tracking-wider bg-slate-800 px-2 py-1 rounded transform -rotate-6">ILLEGAL</span>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(card);
+                    
+                    // Store reference for updates
+                    pref.dom = {
+                        card: card,
+                        badge: card.querySelector(`#badge-${id}`),
+                        avgText: card.querySelector(`#avg-${id}`),
+                        diff: card.querySelector(`#diff-${id}`),
+                        bar: card.querySelector(`#bar-${id}`),
+                        alert: card.querySelector(`#alert-${id}`)
+                    };
+                });
+
+                section.appendChild(grid);
+                container.appendChild(section);
+            });
+
+            updateDashboard();
+        }
+
+        // 更新ロジック
+        function updateDashboard() {
+            const inputVal = parseInt(document.getElementById('globalWageInput').value) || 0;
+            // 業界係数を取得（例: ホテルなら1.3倍）
+            const industryMultiplier = parseFloat(document.getElementById('industrySelect').value);
+
+            regions.forEach(region => {
+                region.prefs.forEach(pref => {
+                    const { min, dom } = pref;
+                    
+                    // 相場（Avg）を業界係数で動的に計算
+                    // 実際はAPIデータを使うが、ここでは最低賃金×係数でシミュレーション
+                    const avg = Math.floor(min * industryMultiplier);
+                    
+                    let status = "SAFE";
+                    let theme = "emerald";
+                    let diffText = "";
+                    
+                    // Logic
+                    if (inputVal < min) {
+                        status = "ILLEGAL";
+                        theme = "slate";
+                        dom.alert.classList.remove('hidden'); // Show Overlay
+                    } else {
+                        dom.alert.classList.add('hidden'); // Hide Overlay
+                        
+                        if (inputVal < avg) {
+                            status = "DANGER";
+                            theme = "rose";
+                            const gap = avg - inputVal;
+                            diffText = `相場まで -${gap}円`;
+                        } else if (inputVal < avg * 1.1) {
+                            status = "WARNING";
+                            theme = "amber";
+                            diffText = "競合と横並び";
+                        } else {
+                            status = "SAFE";
+                            theme = "emerald";
+                            const over = inputVal - avg;
+                            diffText = `相場より +${over}円`;
+                        }
+                    }
+
+                    // --- DOM Updates ---
+                    
+                    // 1. Avg Text Update
+                    dom.avgText.textContent = `${avg}円`;
+
+                    // 2. Card Border & Styles
+                    if (theme === 'slate') {
+                        dom.card.className = `card-transition bg-slate-100 dark:bg-slate-800 rounded-xl p-5 border-b-4 border-slate-600 dark:border-slate-500 shadow-sm relative overflow-hidden group`;
+                        dom.badge.className = "text-sm font-bold px-3 py-1.5 rounded bg-slate-700 dark:bg-slate-600 text-white";
+                        dom.badge.textContent = "違反";
+                        const gap = min - inputVal;
+                        dom.diff.textContent = `最低賃金まで +${gap}円`;
+                        dom.diff.className = "text-base font-black text-slate-600 dark:text-slate-300";
+                        dom.bar.style.width = "0%";
+                        dom.bar.className = "bar-transition h-full bg-slate-400";
+                    } else {
+                        const colorMap = {
+                            rose: { border: 'border-rose-500', text: 'text-rose-600 dark:text-rose-400', bar: 'bg-rose-500', badge: 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300' },
+                            amber: { border: 'border-amber-400', text: 'text-amber-600 dark:text-amber-400', bar: 'bg-amber-400', badge: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' },
+                            emerald: { border: 'border-emerald-500', text: 'text-emerald-600 dark:text-emerald-400', bar: 'bg-emerald-500', badge: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300' }
+                        };
+                        const c = colorMap[theme];
+
+                        dom.card.className = `card-transition bg-white dark:bg-slate-800 rounded-xl p-5 border-b-4 shadow-sm relative overflow-hidden group ${c.border}`;
+
+                        dom.badge.className = `text-sm font-bold px-3 py-1.5 rounded ${c.badge}`;
+                        dom.badge.textContent = status;
+
+                        dom.diff.className = `text-base font-black ${c.text}`;
+                        dom.diff.textContent = diffText;
+
+                        // Bar Calculation (Scale: 0% = Min Wage, 100% = Avg * 1.2)
+                        const rangeMin = min;
+                        const rangeMax = avg * 1.2;
+                        const pct = Math.max(0, Math.min(100, ((inputVal - rangeMin) / (rangeMax - rangeMin)) * 100));
+
+                        dom.bar.className = `bar-transition h-full ${c.bar}`;
+                        dom.bar.style.width = `${pct}%`;
+                    }
+                });
+            });
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('darkMode', 'light');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('darkMode', 'dark');
+            }
+        }
+
+        function initDarkMode() {
+            const saved = localStorage.getItem('darkMode');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            }
+        }
+
+        initDarkMode();
+        window.addEventListener('DOMContentLoaded', renderDashboard);
+    </script>
+</body>
+</html>
