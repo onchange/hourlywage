@@ -44,10 +44,10 @@
                     <div class="flex flex-col w-full sm:w-auto">
                         <label class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase px-1 mb-1">ターゲット業界</label>
                         <select id="industrySelect" onchange="updateDashboard()" class="p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-base font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
-                            <option value="hotel">ホテル・宿泊業 (実データ)</option>
-                            <option value="1.15">レストラン・飲食 (係数1.15)</option>
-                            <option value="1.05">コンビニ・小売 (係数1.05)</option>
-                            <option value="1.40">派遣・高スキル (係数1.40)</option>
+                            <option value="hotel">宿泊業・飲食サービス業</option>
+                            <option value="retail">卸売業・小売業</option>
+                            <option value="service">生活関連サービス業・娯楽業</option>
+                            <option value="dispatch">サービス業（派遣等）</option>
                         </select>
                     </div>
 
@@ -107,13 +107,22 @@
 
             <div class="space-y-6 text-sm text-slate-600 dark:text-slate-400">
                 <div>
-                    <h4 class="font-bold text-slate-700 dark:text-slate-300 mb-2">市場相場データ（ホテル・宿泊業）</h4>
+                    <h4 class="font-bold text-slate-700 dark:text-slate-300 mb-2">市場相場データ（全業界）</h4>
                     <ul class="list-disc list-inside space-y-1 ml-2">
                         <li><strong>出典:</strong> e-Stat 賃金構造基本統計調査（厚生労働省）</li>
                         <li><strong>統計表ID:</strong> 0003084963</li>
-                        <li><strong>対象:</strong> 短時間労働者 / 宿泊業，飲食サービス業 / 1時間当たり所定内給与額</li>
+                        <li><strong>対象:</strong> 短時間労働者 / 1時間当たり所定内給与額 / 都道府県別</li>
                         <li><strong>基準年:</strong> 2019年（令和元年）</li>
                     </ul>
+                    <div class="mt-3 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg text-xs">
+                        <p class="font-bold mb-1">対象業種（e-Stat産業分類）:</p>
+                        <ul class="list-disc list-inside ml-2 space-y-0.5">
+                            <li>宿泊業・飲食サービス業（産業コード83）</li>
+                            <li>卸売業・小売業（産業コード52）</li>
+                            <li>生活関連サービス業・娯楽業（産業コード87）</li>
+                            <li>サービス業（他に分類されないもの）（産業コード101）</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div>
@@ -137,7 +146,6 @@
                     <ul class="list-disc list-inside space-y-1 ml-2 text-xs text-slate-500 dark:text-slate-500">
                         <li>市場相場は統計データに基づく推定値であり、実際の募集条件とは異なる場合があります</li>
                         <li>2019年以降の賃金構造基本統計調査では、短時間労働者の産業×都道府県クロス集計が未整備のため、2019年データを基に補正しています</li>
-                        <li>レストラン・飲食、コンビニ・小売、派遣・高スキルは係数による推計値です</li>
                         <li>最低賃金は毎年10月頃に改定されます</li>
                     </ul>
                 </div>
@@ -200,8 +208,10 @@
          * ============================================================
          */
 
-        // 宿泊業・飲食サービス業の実データ（e-Stat 賃金構造基本統計調査 2019年）
+        // 業界別実データ（e-Stat 賃金構造基本統計調査 2019年）
         // 2024年推定値 = 2019年実績 × (2024年最低賃金 / 2019年最低賃金)
+
+        // 宿泊業，飲食サービス業（産業コード: 83）
         const hotelWage2019 = {
             "北海道": 966, "青森県": 877, "岩手県": 891, "宮城県": 934,
             "秋田県": 940, "山形県": 904, "福島県": 943, "茨城県": 997,
@@ -215,6 +225,54 @@
             "香川県": 950, "愛媛県": 892, "高知県": 916, "福岡県": 952,
             "佐賀県": 910, "長崎県": 944, "熊本県": 921, "大分県": 939,
             "宮崎県": 900, "鹿児島県": 908, "沖縄県": 918
+        };
+
+        // 卸売業，小売業（産業コード: 52）
+        const retailWage2019 = {
+            "北海道": 974, "青森県": 909, "岩手県": 979, "宮城県": 968,
+            "秋田県": 922, "山形県": 942, "福島県": 899, "茨城県": 974,
+            "栃木県": 997, "群馬県": 1005, "埼玉県": 1088, "千葉県": 1079,
+            "東京都": 1210, "神奈川県": 1169, "新潟県": 995, "富山県": 1080,
+            "石川県": 999, "福井県": 1086, "山梨県": 1000, "長野県": 1055,
+            "岐阜県": 998, "静岡県": 1024, "愛知県": 1067, "三重県": 1031,
+            "滋賀県": 1002, "京都府": 1052, "大阪府": 1113, "兵庫県": 1040,
+            "奈良県": 1005, "和歌山県": 973, "鳥取県": 959, "島根県": 1038,
+            "岡山県": 1012, "広島県": 1049, "山口県": 916, "徳島県": 964,
+            "香川県": 981, "愛媛県": 959, "高知県": 947, "福岡県": 986,
+            "佐賀県": 922, "長崎県": 901, "熊本県": 909, "大分県": 890,
+            "宮崎県": 945, "鹿児島県": 893, "沖縄県": 967
+        };
+
+        // 生活関連サービス業，娯楽業（産業コード: 87）
+        const serviceWage2019 = {
+            "北海道": 1023, "青森県": 985, "岩手県": 915, "宮城県": 1095,
+            "秋田県": 956, "山形県": 1069, "福島県": 1070, "茨城県": 1084,
+            "栃木県": 1000, "群馬県": 1085, "埼玉県": 1105, "千葉県": 1196,
+            "東京都": 1305, "神奈川県": 1194, "新潟県": 998, "富山県": 1055,
+            "石川県": 1068, "福井県": 1013, "山梨県": 1003, "長野県": 1021,
+            "岐阜県": 1109, "静岡県": 1055, "愛知県": 1143, "三重県": 1088,
+            "滋賀県": 1020, "京都府": 1114, "大阪府": 1128, "兵庫県": 1066,
+            "奈良県": 1167, "和歌山県": 1297, "鳥取県": 1136, "島根県": 948,
+            "岡山県": 1096, "広島県": 1091, "山口県": 974, "徳島県": 1028,
+            "香川県": 1072, "愛媛県": 1071, "高知県": 1073, "福岡県": 1045,
+            "佐賀県": 1024, "長崎県": 1013, "熊本県": 1013, "大分県": 1025,
+            "宮崎県": 1010, "鹿児島県": 1005, "沖縄県": 952
+        };
+
+        // サービス業（他に分類されないもの）（産業コード: 101）- 派遣業含む
+        const dispatchWage2019 = {
+            "北海道": 988, "青森県": 894, "岩手県": 963, "宮城県": 994,
+            "秋田県": 860, "山形県": 943, "福島県": 998, "茨城県": 1097,
+            "栃木県": 1087, "群馬県": 1052, "埼玉県": 1051, "千葉県": 1099,
+            "東京都": 1355, "神奈川県": 1222, "新潟県": 987, "富山県": 969,
+            "石川県": 1007, "福井県": 1025, "山梨県": 1019, "長野県": 997,
+            "岐阜県": 1038, "静岡県": 1059, "愛知県": 1098, "三重県": 1053,
+            "滋賀県": 1093, "京都府": 1091, "大阪府": 1110, "兵庫県": 1057,
+            "奈良県": 1015, "和歌山県": 1009, "鳥取県": 1027, "島根県": 1035,
+            "岡山県": 1041, "広島県": 1057, "山口県": 968, "徳島県": 973,
+            "香川県": 1007, "愛媛県": 980, "高知県": 925, "福岡県": 1156,
+            "佐賀県": 947, "長崎県": 976, "熊本県": 948, "大分県": 920,
+            "宮崎県": 952, "鹿児島県": 1117, "沖縄県": 961
         };
 
         // 2019年の最低賃金（補正計算用）
@@ -293,9 +351,19 @@
             }
         ];
 
+        // 業界別2019年データのマッピング
+        const industryData = {
+            hotel: hotelWage2019,
+            retail: retailWage2019,
+            service: serviceWage2019,
+            dispatch: dispatchWage2019
+        };
+
         // 2024年推定時給を計算（2019年実績 × 最低賃金上昇率）
-        function getEstimatedWage2024(prefName, min2024) {
-            const wage2019 = hotelWage2019[prefName];
+        function getEstimatedWage2024(prefName, min2024, industryType) {
+            const wage2019Data = industryData[industryType];
+            if (!wage2019Data) return null;
+            const wage2019 = wage2019Data[prefName];
             const min2019 = minWage2019[prefName];
             if (!wage2019 || !min2019) return null;
             return Math.round(wage2019 * (min2024 / min2019));
@@ -379,22 +447,14 @@
         function updateDashboard() {
             const inputVal = parseInt(document.getElementById('globalWageInput').value) || 0;
             const industryValue = document.getElementById('industrySelect').value;
-            const useRealData = (industryValue === 'hotel');
-            const industryMultiplier = useRealData ? 1 : parseFloat(industryValue);
 
             regions.forEach(region => {
                 region.prefs.forEach(pref => {
                     const { name, min, dom } = pref;
 
                     // 相場（Avg）を計算
-                    // ホテル・宿泊業: e-Stat実データ（2019年→2024年補正）
-                    // その他業界: 最低賃金×係数
-                    let avg;
-                    if (useRealData) {
-                        avg = getEstimatedWage2024(name, min) || Math.floor(min * 1.30);
-                    } else {
-                        avg = Math.floor(min * industryMultiplier);
-                    }
+                    // 全業界: e-Stat実データ（2019年→2024年補正）
+                    const avg = getEstimatedWage2024(name, min, industryValue);
                     
                     let status = "安全";
                     let theme = "emerald";
