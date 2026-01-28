@@ -44,10 +44,10 @@
                     <div class="flex flex-col w-full sm:w-auto">
                         <label class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase px-1 mb-1">ターゲット業界</label>
                         <select id="industrySelect" onchange="updateDashboard()" class="p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-base font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-indigo-500">
-                            <option value="1.30">ホテル・宿泊業 (高水準)</option>
-                            <option value="1.15">レストラン・飲食 (標準)</option>
-                            <option value="1.05">コンビニ・小売 (低水準)</option>
-                            <option value="1.40">派遣・高スキル (激戦)</option>
+                            <option value="hotel">ホテル・宿泊業 (実データ)</option>
+                            <option value="1.15">レストラン・飲食 (係数1.15)</option>
+                            <option value="1.05">コンビニ・小売 (係数1.05)</option>
+                            <option value="1.40">派遣・高スキル (係数1.40)</option>
                         </select>
                     </div>
 
@@ -158,8 +158,40 @@
          * ============================================================
          */
 
-        // 47都道府県データ（2024年度最低賃金ベース - 要更新）
-        // TODO: 2025年度データへの更新が必要
+        // 宿泊業・飲食サービス業の実データ（e-Stat 賃金構造基本統計調査 2019年）
+        // 2024年推定値 = 2019年実績 × (2024年最低賃金 / 2019年最低賃金)
+        const hotelWage2019 = {
+            "北海道": 966, "青森県": 877, "岩手県": 891, "宮城県": 934,
+            "秋田県": 940, "山形県": 904, "福島県": 943, "茨城県": 997,
+            "栃木県": 967, "群馬県": 991, "埼玉県": 1028, "千葉県": 1060,
+            "東京都": 1154, "神奈川県": 1119, "新潟県": 946, "富山県": 1007,
+            "石川県": 996, "福井県": 979, "山梨県": 1060, "長野県": 981,
+            "岐阜県": 996, "静岡県": 1036, "愛知県": 1050, "三重県": 984,
+            "滋賀県": 966, "京都府": 1048, "大阪府": 1065, "兵庫県": 1019,
+            "奈良県": 966, "和歌山県": 941, "鳥取県": 904, "島根県": 928,
+            "岡山県": 951, "広島県": 1012, "山口県": 953, "徳島県": 942,
+            "香川県": 950, "愛媛県": 892, "高知県": 916, "福岡県": 952,
+            "佐賀県": 910, "長崎県": 944, "熊本県": 921, "大分県": 939,
+            "宮崎県": 900, "鹿児島県": 908, "沖縄県": 918
+        };
+
+        // 2019年の最低賃金（補正計算用）
+        const minWage2019 = {
+            "北海道": 861, "青森県": 790, "岩手県": 790, "宮城県": 824,
+            "秋田県": 790, "山形県": 790, "福島県": 798, "茨城県": 849,
+            "栃木県": 853, "群馬県": 835, "埼玉県": 926, "千葉県": 923,
+            "東京都": 1013, "神奈川県": 1011, "新潟県": 830, "富山県": 848,
+            "石川県": 832, "福井県": 829, "山梨県": 837, "長野県": 848,
+            "岐阜県": 851, "静岡県": 885, "愛知県": 926, "三重県": 873,
+            "滋賀県": 866, "京都府": 909, "大阪府": 964, "兵庫県": 899,
+            "奈良県": 837, "和歌山県": 830, "鳥取県": 790, "島根県": 790,
+            "岡山県": 833, "広島県": 871, "山口県": 829, "徳島県": 793,
+            "香川県": 818, "愛媛県": 790, "高知県": 790, "福岡県": 841,
+            "佐賀県": 790, "長崎県": 790, "熊本県": 790, "大分県": 790,
+            "宮崎県": 790, "鹿児島県": 790, "沖縄県": 790
+        };
+
+        // 47都道府県データ（2024年度最低賃金）
         const regions = [
             {
                 name: "北海道・東北",
@@ -218,6 +250,14 @@
                 ]
             }
         ];
+
+        // 2024年推定時給を計算（2019年実績 × 最低賃金上昇率）
+        function getEstimatedWage2024(prefName, min2024) {
+            const wage2019 = hotelWage2019[prefName];
+            const min2019 = minWage2019[prefName];
+            if (!wage2019 || !min2019) return null;
+            return Math.round(wage2019 * (min2024 / min2019));
+        }
 
         // 初期描画
         function renderDashboard() {
@@ -296,16 +336,23 @@
         // 更新ロジック
         function updateDashboard() {
             const inputVal = parseInt(document.getElementById('globalWageInput').value) || 0;
-            // 業界係数を取得（例: ホテルなら1.3倍）
-            const industryMultiplier = parseFloat(document.getElementById('industrySelect').value);
+            const industryValue = document.getElementById('industrySelect').value;
+            const useRealData = (industryValue === 'hotel');
+            const industryMultiplier = useRealData ? 1 : parseFloat(industryValue);
 
             regions.forEach(region => {
                 region.prefs.forEach(pref => {
-                    const { min, dom } = pref;
-                    
-                    // 相場（Avg）を業界係数で動的に計算
-                    // 実際はAPIデータを使うが、ここでは最低賃金×係数でシミュレーション
-                    const avg = Math.floor(min * industryMultiplier);
+                    const { name, min, dom } = pref;
+
+                    // 相場（Avg）を計算
+                    // ホテル・宿泊業: e-Stat実データ（2019年→2024年補正）
+                    // その他業界: 最低賃金×係数
+                    let avg;
+                    if (useRealData) {
+                        avg = getEstimatedWage2024(name, min) || Math.floor(min * 1.30);
+                    } else {
+                        avg = Math.floor(min * industryMultiplier);
+                    }
                     
                     let status = "安全";
                     let theme = "emerald";
