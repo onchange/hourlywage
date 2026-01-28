@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Hazard Map v3 | 業界別・採用競争力シミュレーター</title>
+    <title>時給競争力シミュレーター</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -28,10 +28,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                     </div>
                     <div>
-                        <h1 class="text-xl font-black text-slate-800 dark:text-slate-100 tracking-tighter uppercase leading-none">
-                            Salary <span class="text-indigo-600 dark:text-indigo-400">Map</span> v3
+                        <h1 class="text-xl font-black text-slate-800 dark:text-slate-100 leading-none">
+                            時給競争力<span class="text-indigo-600 dark:text-indigo-400">シミュレーター</span>
                         </h1>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 font-bold">業界別・時給競争力シミュレーター</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 font-bold">業界別・47都道府県対応</p>
                     </div>
                     <button id="darkModeToggle" onclick="toggleDarkMode()" class="ml-2 p-2 rounded-lg bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors" title="ダークモード切替">
                         <svg id="sunIcon" class="hidden dark:block w-5 h-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -72,28 +72,28 @@
                 <div class="flex items-start gap-4">
                     <div class="w-4 h-4 rounded-full bg-emerald-500 mt-1 shrink-0"></div>
                     <div>
-                        <p class="text-base font-black text-emerald-700 dark:text-emerald-400">安全 (Safe)</p>
+                        <p class="text-base font-black text-emerald-700 dark:text-emerald-400">安全</p>
                         <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">市場相場より10%以上高く、求職者に「稼げる」と認識され、十分な応募が見込める状態。</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-4">
                     <div class="w-4 h-4 rounded-full bg-amber-400 mt-1 shrink-0"></div>
                     <div>
-                        <p class="text-base font-black text-amber-600 dark:text-amber-400">注意 (Warning)</p>
+                        <p class="text-base font-black text-amber-600 dark:text-amber-400">注意</p>
                         <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">市場相場と同程度。競合他社と条件が並んでおり、立地やブランド力がないと埋もれる状態。</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-4">
                     <div class="w-4 h-4 rounded-full bg-rose-500 mt-1 shrink-0"></div>
                     <div>
-                        <p class="text-base font-black text-rose-600 dark:text-rose-400">危険 (Danger)</p>
+                        <p class="text-base font-black text-rose-600 dark:text-rose-400">危険</p>
                         <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">市場相場を下回っている。最低賃金以上だが、他社より条件が悪いため応募がほぼ来ない状態。</p>
                     </div>
                 </div>
                 <div class="flex items-start gap-4">
                     <div class="w-4 h-4 rounded-full bg-slate-800 dark:bg-slate-500 mt-1 shrink-0"></div>
                     <div>
-                        <p class="text-base font-black text-slate-800 dark:text-slate-300">違法水準</p>
+                        <p class="text-base font-black text-slate-800 dark:text-slate-300">違反</p>
                         <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">最低賃金を下回っている状態。法律違反となり、求人媒体への掲載も不可。</p>
                     </div>
                 </div>
@@ -273,21 +273,16 @@
                             </div>
                         </div>
 
-                        <div id="alert-${id}" class="hidden absolute top-3 right-3 z-20">
-                            <span class="text-white font-black text-xs uppercase tracking-wider bg-slate-800 px-2 py-1 rounded transform -rotate-6">ILLEGAL</span>
-                        </div>
                     `;
                     
                     grid.appendChild(card);
                     
-                    // Store reference for updates
                     pref.dom = {
                         card: card,
                         badge: card.querySelector(`#badge-${id}`),
                         avgText: card.querySelector(`#avg-${id}`),
                         diff: card.querySelector(`#diff-${id}`),
-                        bar: card.querySelector(`#bar-${id}`),
-                        alert: card.querySelector(`#alert-${id}`)
+                        bar: card.querySelector(`#bar-${id}`)
                     };
                 });
 
@@ -312,29 +307,27 @@
                     // 実際はAPIデータを使うが、ここでは最低賃金×係数でシミュレーション
                     const avg = Math.floor(min * industryMultiplier);
                     
-                    let status = "SAFE";
+                    let status = "安全";
                     let theme = "emerald";
                     let diffText = "";
-                    
+
                     // Logic
                     if (inputVal < min) {
-                        status = "ILLEGAL";
+                        status = "違反";
                         theme = "slate";
-                        dom.alert.classList.remove('hidden'); // Show Overlay
                     } else {
-                        dom.alert.classList.add('hidden'); // Hide Overlay
-                        
+
                         if (inputVal < avg) {
-                            status = "DANGER";
+                            status = "危険";
                             theme = "rose";
                             const gap = avg - inputVal;
                             diffText = `相場まで -${gap}円`;
                         } else if (inputVal < avg * 1.1) {
-                            status = "WARNING";
+                            status = "注意";
                             theme = "amber";
                             diffText = "競合と横並び";
                         } else {
-                            status = "SAFE";
+                            status = "安全";
                             theme = "emerald";
                             const over = inputVal - avg;
                             diffText = `相場より +${over}円`;
