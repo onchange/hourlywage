@@ -102,6 +102,48 @@
 
         <div id="dashboardContainer" class="space-y-12"></div>
 
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mt-12 transition-colors">
+            <h3 class="text-base font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">データソース・計算ロジック</h3>
+
+            <div class="space-y-6 text-sm text-slate-600 dark:text-slate-400">
+                <div>
+                    <h4 class="font-bold text-slate-700 dark:text-slate-300 mb-2">市場相場データ（ホテル・宿泊業）</h4>
+                    <ul class="list-disc list-inside space-y-1 ml-2">
+                        <li><strong>出典:</strong> e-Stat 賃金構造基本統計調査（厚生労働省）</li>
+                        <li><strong>統計表ID:</strong> 0003084963</li>
+                        <li><strong>対象:</strong> 短時間労働者 / 宿泊業，飲食サービス業 / 1時間当たり所定内給与額</li>
+                        <li><strong>基準年:</strong> 2019年（令和元年）</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-700 dark:text-slate-300 mb-2">2024年推定値の計算ロジック</h4>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg font-mono text-xs">
+                        2024年推定時給 = 2019年実績 × (2024年最低賃金 ÷ 2019年最低賃金)
+                    </div>
+                    <p class="mt-2 text-xs">最低賃金の上昇率を用いて、2019年の実データを2024年水準に補正しています。</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-700 dark:text-slate-300 mb-2">最低賃金データ</h4>
+                    <ul class="list-disc list-inside space-y-1 ml-2">
+                        <li><strong>2024年度:</strong> 各都道府県の地域別最低賃金（2024年10月発効）</li>
+                        <li><strong>出典:</strong> 厚生労働省 地域別最低賃金の全国一覧</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-slate-700 dark:text-slate-300 mb-2">注意事項</h4>
+                    <ul class="list-disc list-inside space-y-1 ml-2 text-xs text-slate-500 dark:text-slate-500">
+                        <li>市場相場は統計データに基づく推定値であり、実際の募集条件とは異なる場合があります</li>
+                        <li>2019年以降の賃金構造基本統計調査では、短時間労働者の産業×都道府県クロス集計が未整備のため、2019年データを基に補正しています</li>
+                        <li>レストラン・飲食、コンビニ・小売、派遣・高スキルは係数による推計値です</li>
+                        <li>最低賃金は毎年10月頃に改定されます</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
