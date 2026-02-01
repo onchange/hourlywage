@@ -13,6 +13,8 @@
 - **JavaScript:** Vanilla JS (ES6+)。ビルド不要、フレームワーク不要。
 - **データ:** 外部APIは使用せず、JSオブジェクトとして内部に保持（オフラインでも動作させるため）。
 - **画像:** 外部画像ファイルは使用しない。アイコンはSVGコードをインラインで記述。
+- **ホスティング:** Cloudflare Pages（https://hourlywage.pages.dev/hourlywage）
+- **デプロイ:** `npx wrangler pages deploy . --project-name=hourlywage --commit-dirty=true`
 
 ## 3. ビジネスロジック & 判定基準
 ユーザー入力値 (`inputWage`) と、各都道府県の最低賃金 (`min`) および業界別の市場相場時給 (`avg`) を用いて判定を行う。
