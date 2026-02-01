@@ -1,0 +1,54 @@
+<h2>ツール概要</h2>
+
+<p>人材派遣業の営業担当者向けに、提案時給が市場相場に対して競争力があるかを47都道府県別に可視化するツールを作成しました。</p>
+
+<p><strong>▶ <a href="https://hourlywage.pages.dev/hourlywage" target="_blank">時給競争力シミュレーターを開く</a></strong></p>
+
+<div class="separator" style="clear: both; text-align: center; margin: 20px 0;">
+<a href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpzpYJPiW4pkT2YPeDLMKDYkzk92yTdrfkScOCZ4tvpHqNvjKxPvNtKbRM9XwNKH8Y8XycdT3rnWBL4R5IJhuSRK8QIqEP-0T7v7XdJzpmGxhagoz2FO5dwytIaiCi3aZwpPXr6MfrxOJFVtpnPSTAdFi8bD2nlsu_b9Z2UEYzQWqkmjTmCYpv/s1305/hourlywage.png" style="margin-left: 1em; margin-right: 1em;">
+<img alt="時給競争力シミュレーターのスクリーンショット" border="0" width="600" data-original-height="1236" data-original-width="1305" src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpzpYJPiW4pkT2YPeDLMKDYkzk92yTdrfkScOCZ4tvpHqNvjKxPvNtKbRM9XwNKH8Y8XycdT3rnWBL4R5IJhuSRK8QIqEP-0T7v7XdJzpmGxhagoz2FO5dwytIaiCi3aZwpPXr6MfrxOJFVtpnPSTAdFi8bD2nlsu_b9Z2UEYzQWqkmjTmCYpv/s600/hourlywage.png"/>
+</a>
+</div>
+
+<h2>主な機能</h2>
+
+<ul>
+<li><strong>47都道府県対応</strong>: 各都道府県の最低賃金と市場相場を表示</li>
+<li><strong>4業界対応</strong>: 宿泊業・飲食サービス業、卸売業・小売業、生活関連サービス業・娯楽業、サービス業（派遣等）</li>
+<li><strong>リアルタイム判定</strong>: 時給を入力すると即座に全都道府県の競争力を判定</li>
+<li><strong>4段階評価</strong>: 安全（相場+10%以上）/ 注意（相場並み）/ 危険（相場未満）/ 違反（最低賃金未満）</li>
+<li><strong>ダークモード対応</strong></li>
+</ul>
+
+<h2>データソース</h2>
+
+<p>市場相場データは厚生労働省の「賃金構造基本統計調査」（e-Stat）から取得した<strong>2019年の実データを最低賃金上昇率で補正した推定値</strong>を使用しています。</p>
+
+<ul>
+<li><strong>出典</strong>: e-Stat 賃金構造基本統計調査（厚生労働省）</li>
+<li><strong>対象</strong>: 短時間労働者 / 1時間当たり所定内給与額 / 都道府県別</li>
+<li><strong>基準年</strong>: 2019年（令和元年）</li>
+<li><strong>補正方法</strong>: 2024年推定時給 = 2019年実績 × (2024年最低賃金 ÷ 2019年最低賃金)</li>
+</ul>
+
+<p style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; font-size: 0.9em;">
+<strong>⚠ 注意:</strong> 2020年以降、短時間労働者の産業×都道府県クロス集計データがe-Statで公開されていないため、2019年の実データを最低賃金上昇率で補正した推定値を使用しています。実際の募集条件とは異なる場合がありますので、参考値としてご活用ください。
+</p>
+
+<h2>技術スタック</h2>
+
+<ul>
+<li>HTML / CSS (Tailwind CSS) / Vanilla JavaScript</li>
+<li>単一HTMLファイル構成（オフライン動作可能）</li>
+<li>Cloudflare Pagesでホスティング</li>
+</ul>
+
+<h2>使い方</h2>
+
+<ol>
+<li>業界を選択</li>
+<li>提案したい時給を入力</li>
+<li>各都道府県のカードで競争力を確認</li>
+</ol>
+
+<p>クライアントへの時給提案時に、根拠データとしてご活用ください。</p>
