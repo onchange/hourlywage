@@ -5,7 +5,7 @@
 - **ブログ名**: メモメモ
 - **ブログID**: 18765938
 - **URL**: https://onchange.blogspot.com/
-- **総記事数**: 14件
+- **総記事数**: 15件
 
 ## 認証情報
 
@@ -60,13 +60,31 @@ curl -X PUT \
 
 投稿・更新にはOAuth 2.0認証が必要:
 
+### 初回認証（スクリプト使用）
+
+1. **認証URLを取得**:
+```bash
+./scripts/blogger-auth.sh
+```
+
+2. **表示されたURLをブラウザで開き、認証後のコードでトークン取得**:
+```bash
+./scripts/blogger-token.sh <認証コード>
+```
+
+3. **表示されたトークンを`.env`に追加**
+
+### 手動認証
+
 1. **認証URL生成**:
 ```
 https://accounts.google.com/o/oauth2/v2/auth?
   client_id=$BLOGGER_CLIENT_ID&
-  redirect_uri=urn:ietf:wg:oauth:2.0:oob&
+  redirect_uri=http://localhost:8080&
   scope=https://www.googleapis.com/auth/blogger&
-  response_type=code
+  response_type=code&
+  access_type=offline&
+  prompt=consent
 ```
 
 2. **認証コードをアクセストークンに交換**:
@@ -76,19 +94,30 @@ curl -X POST "https://oauth2.googleapis.com/token" \
   -d "client_secret=$BLOGGER_CLIENT_SECRET" \
   -d "code=$AUTH_CODE" \
   -d "grant_type=authorization_code" \
-  -d "redirect_uri=urn:ietf:wg:oauth:2.0:oob"
+  -d "redirect_uri=http://localhost:8080"
 ```
 
-3. **リフレッシュトークンでアクセストークン更新**:
+### トークンリフレッシュ
+
+アクセストークンは1時間で期限切れになります。リフレッシュトークンを使って更新：
+
 ```bash
-curl -X POST "https://oauth2.googleapis.com/token" \
-  -d "client_id=$BLOGGER_CLIENT_ID" \
-  -d "client_secret=$BLOGGER_CLIENT_SECRET" \
-  -d "refresh_token=$REFRESH_TOKEN" \
-  -d "grant_type=refresh_token"
+source .env && curl -s -X POST "https://oauth2.googleapis.com/token" \
+  -d "client_id=${BLOGGER_CLIENT_ID}" \
+  -d "client_secret=${BLOGGER_CLIENT_SECRET}" \
+  -d "refresh_token=${BLOGGER_REFRESH_TOKEN}" \
+  -d "grant_type=refresh_token" | jq .
 ```
+
+レスポンスの`access_token`を`.env`の`BLOGGER_ACCESS_TOKEN`に更新してください。
 
 ## 投稿済み記事
+
+### 生成AI用語集
+- **記事ID**: 2183129097181157496
+- **投稿日**: 2026-02-01
+- **URL**: https://onchange.blogspot.com/2026/02/ai-moethinking.html
+- **内容**: MoE、Thinking、Reasoning、RLHF、RAG等の主要概念まとめ
 
 ### 時給競争力シミュレーター
 - **記事ID**: 8545276010312984829
@@ -98,9 +127,9 @@ curl -X POST "https://oauth2.googleapis.com/token" \
 
 ## 記事作成ワークフロー
 
-1. `blog-draft.html` に記事内容を作成
-2. 画像はBloggerにアップロードしてURLを取得
-3. Blogger APIまたは管理画面から投稿
+1. 記事内容をHTML形式で作成
+2. 画像はBlogger管理画面でアップロードしてURLを取得
+3. Blogger API（curl）または管理画面から投稿
 
 ## 注意事項
 
